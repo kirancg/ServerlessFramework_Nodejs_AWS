@@ -2,10 +2,7 @@ import { v4 as uuid } from 'uuid';
 import AWS from 'aws-sdk';
 
 //middlewares imported
-import middy from '@middy/core';
-import httpJsonBodyParser from '@middy/http-json-body-parser';
-import httpEventNormalizer from '@middy/http-event-normalizer';
-import httpErrorHandler from '@middy/http-error-handler';
+import commonMiddleware from '../lib/commonMiddleware';
 import createError from 'http-errors';
 
 
@@ -21,6 +18,9 @@ async function createAuction(event, context) {
     title,
     status: 'OPEN',
     createdAt: now.toISOString(),
+    highestBid: {
+      amount: 0,
+    }
   };
 
   //inserting item(record) to dynamodb
@@ -41,8 +41,10 @@ async function createAuction(event, context) {
   };
 }
 
-export const handler = middy(createAuction)
+export const handler = commonMiddleware(createAuction);
+
+/*
   .use(httpJsonBodyParser()) //automatically parse stringfied event body
   .use(httpEventNormalizer()) //will automatically adjust api gateway event object to prevent us from accidentally having non existent object when trying to access path parameters or query parameters which are not provided(avoid room for errors)
   .use(httpErrorHandler()); //handles error smoothly
-//wrapping the function with middleware
+//wrapping the function with middleware */

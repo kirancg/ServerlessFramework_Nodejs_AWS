@@ -1,10 +1,7 @@
 import AWS from 'aws-sdk';
 
 //middlewares imported
-import middy from '@middy/core';
-import httpJsonBodyParser from '@middy/http-json-body-parser';
-import httpEventNormalizer from '@middy/http-event-normalizer';
-import httpErrorHandler from '@middy/http-error-handler';
+import commonMiddleware from '../lib/commonMiddleware';
 import createError from 'http-errors';
 
 //get dynamodDB package from AWS-SDK
@@ -29,8 +26,5 @@ async function getAuctions(event, context) {
   };
 }
 
-export const handler = middy(getAuctions)
-  .use(httpJsonBodyParser()) //automatically parse stringfied event body
-  .use(httpEventNormalizer()) //will automatically adjust api gateway event object to prevent us from accidentally having non existent object when trying to access path parameters or query parameters which are not provided(avoid room for errors)
-  .use(httpErrorHandler()); //handles error smoothly
-//wrapping the function with middleware
+//wrapping with a common middleware
+export const handler = commonMiddleware(getAuctions);

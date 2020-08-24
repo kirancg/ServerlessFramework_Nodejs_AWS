@@ -1,10 +1,14 @@
 import AWS from 'aws-sdk';
 
 //middlewares imported
-import middy from '@middy/core';
+/*import middy from '@middy/core';
 import httpJsonBodyParser from '@middy/http-json-body-parser';
 import httpEventNormalizer from '@middy/http-event-normalizer';
-import httpErrorHandler from '@middy/http-error-handler';
+import httpErrorHandler from '@middy/http-error-handler'; */
+
+//importing common middeleware
+import commonMiddleware from '../lib/commonMiddleware';
+
 import createError from 'http-errors';
 
 //get dynamodDB package from AWS-SDK
@@ -25,7 +29,7 @@ async function getAuction(event, context) {
         throw new createError.InternalServerError(error);
     }
 
-    (!auction) {
+    if (!auction) {
         throw new createError.NotFound(`Auction with ID "${id}" not found `);
     }
 
@@ -35,8 +39,10 @@ async function getAuction(event, context) {
   };
 }
 
-export const handler = middy(getAuction)
+export const handler = commonMiddleware(getAuction);
+
+    /*middy(getAuction)
   .use(httpJsonBodyParser()) //automatically parse stringfied event body
   .use(httpEventNormalizer()) //will automatically adjust api gateway event object to prevent us from accidentally having non existent object when trying to access path parameters or query parameters which are not provided(avoid room for errors)
   .use(httpErrorHandler()); //handles error smoothly
-//wrapping the function with middleware
+//wrapping the function with middleware */
