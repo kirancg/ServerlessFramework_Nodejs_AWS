@@ -5,19 +5,22 @@ import AWS from 'aws-sdk';
 import commonMiddleware from '../lib/commonMiddleware';
 import createError from 'http-errors';
 
-
 //get dynamodDB package from AWS-SDK
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 async function createAuction(event, context) {
   const { title } = event.body;
   const now = new Date();
+  const endDate = new Date();
+  endDate.setHours(now.getHours() + 1);
 
   const auction = {
     id: uuid(),
     title,
     status: 'OPEN',
     createdAt: now.toISOString(),
+    //setting a global secondary index
+    endingAt: endDate.toISOString(),
     highestBid: {
       amount: 0,
     }
