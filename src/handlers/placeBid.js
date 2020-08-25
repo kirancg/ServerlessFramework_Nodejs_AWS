@@ -4,6 +4,8 @@ import AWS from 'aws-sdk';
 import commonMiddleware from '../lib/commonMiddleware';
 import createError from 'http-errors';
 import { getAuctionById } from './getAuction';
+import placeBidSchema from '../lib/schemas/placeBidSchema';
+import validator from '@middy/validator';
 
 //get dynamodDB package from AWS-SDK
 const dynamodb = new AWS.DynamoDB.DocumentClient();
@@ -14,6 +16,10 @@ async function placeBid(event, context) {
     const { amount } = event.body;
 
     const auction = await getAuctionById(id);
+
+    if (auction.status !== 'OPEN') {
+        throw new createError.Forbidden('You cannot bid,auction is closed');
+    }
 
     if (amount <= auction.highestBid.amount) {
         throw new createError.Forbidden(`Your bid must be higher than ${auction.highestBid.amount}`);
@@ -46,4 +52,5 @@ async function placeBid(event, context) {
   };
 }
 
-export const handler = commonMiddleware(placeBid);
+export const handler = commonMiddleware(placeBid)
+    .use(validator({ inpurSchema: placeBidSchema }));

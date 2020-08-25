@@ -4,6 +4,8 @@ import AWS from 'aws-sdk';
 //middlewares imported
 import commonMiddleware from '../lib/commonMiddleware';
 import createError from 'http-errors';
+import createAuctionSchema from '../lib/schemas/createAuctionSchema';
+import validator from '@middy/validator';
 
 //get dynamodDB package from AWS-SDK
 const dynamodb = new AWS.DynamoDB.DocumentClient();
@@ -44,7 +46,8 @@ async function createAuction(event, context) {
   };
 }
 
-export const handler = commonMiddleware(createAuction);
+export const handler = commonMiddleware(createAuction)
+  .use(validator({ inputSchema: createAuctionSchema, useDefaults: true }));
 
 /*
   .use(httpJsonBodyParser()) //automatically parse stringfied event body
