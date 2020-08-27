@@ -12,6 +12,8 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 async function createAuction(event, context) {
   const { title } = event.body;
+  //authorizer has details to get this from json token
+  const { email } = event.requestContext.authorizer;
   const now = new Date();
   const endDate = new Date();
   endDate.setHours(now.getHours() + 1);
@@ -25,7 +27,8 @@ async function createAuction(event, context) {
     endingAt: endDate.toISOString(),
     highestBid: {
       amount: 0,
-    }
+    },
+    seller:email,
   };
 
   //inserting item(record) to dynamodb
@@ -38,8 +41,8 @@ async function createAuction(event, context) {
     console.log(error);
     throw new createError.InternalServerError(error);
   }
-//first service
 
+//first service
   return {
     statusCode: 201,
     body: JSON.stringify(auction),
